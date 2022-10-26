@@ -1,15 +1,12 @@
 const fs = require("fs");
 const Reader = require("./Reader");
+const Processor = require("./Processor");
+const Table = require("./Table");
+const HtmlParser = require("./HtmlParser");
+const Writer = require("./Writer");
+const PDFWriter = require("./PDFWriter");
 
-fs.readFile("./pedro.bueno", {encoding: 'utf-8'}, (error, dados) => {
-    if(error){
-        console.log("Ocorreu uma falha durante a leiturra do arquivo")
-    }else{
-        console.log(dados)
-    }
-})
-
-function modifyUser (name, curso, category) {
+/*function modifyUser (name, curso, category) {
     fs.readFile("./usuario.json", {encoding: "utf-8"}, (error, dados) => {
         if(error){
             console.log("Ocorreu um erro na leitura do arquivo")
@@ -26,7 +23,17 @@ function modifyUser (name, curso, category) {
         }
     })
 }
-modifyUser("Pedro Bueno", "javaScript do zero ao avançado", "javaScript")
+modifyUser("Pedro Bueno", "javaScript do zero ao avançado", "javaScript")*/
 
 const read = new Reader(); //Trabalhando com POO, criando um novo objeto da class Reader
-read.Read("./users.csv");
+const write = new Writer();
+async function main (){ //já que a class usa uma função async, aqui também tme q ser async
+    const data = await read.Read("./users.csv");
+    const processedData = Processor.Process(data);
+    const users = new Table(processedData)
+    const html = await HtmlParser.Parser(users)
+
+    write.Write(Date.now()+".html", html)
+    PDFWriter.WritePDF(Date.now()+".PDF", html)
+}
+main()
